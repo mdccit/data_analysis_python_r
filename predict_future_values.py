@@ -31,7 +31,8 @@ def main():
     file_path = 'data/raw/numbers.txt'
     try:
         with open(file_path, 'r') as file:
-            sequence = np.array([int(line.strip()) for line in file])
+            content = file.read().strip()
+            data = np.array([float(value.replace('x', '')) for value in content.split(',')])
     except FileNotFoundError:
         print(f"File not found: {file_path}")
         return
@@ -39,6 +40,48 @@ def main():
         print("Error reading the data from the file. Ensure the file contains only numeric values.")
         return
     
+    if len(data) < 3:
+        print("Not enough data to estimate LCG parameters.")
+        return
+    
+    # Estimate LCG parameters
+    a, c, m = estimate_lcg_parameters(data)
+    print(f"Estimated LCG parameters: a = {a}, c = {c}, m = {m}")
+    
+    # Initialize the LCG with estimated parameters
+    X = [data[0]]
+    for _ in range(len(data) - 1):
+        X.append((a * X[-1] + c) % m)
+    
+    # Theoretical Weakness Analysis
+    observed = data[:len(X)]
+    predicted = np.array(X)
+    
+    # Period Analysis
+    period = len(set(predicted))
+    print(f"Estimated period of the sequence: {period}")
+    
+    # Distribution Analysis
+    plt.figure(figsize=(10, 6))
+    plt.hist(observed, bins=20, alpha=0.5, label='Observed')
+    plt.hist(predicted, bins=20, alpha=0.5, label='Predicted')
+    plt.xlabel('Value')
+    plt.ylabel('Frequency')
+    plt.title('Distribution of Observed and Predicted Values')
+    plt.legend()
+    plt.show()
+    
+    # Correlation Analysis
+    plt.figure(figsize=(10, 6))
+    plt.scatter(observed, predicted, alpha=0.5)
+    plt.xlabel('Observed Values')
+    plt.ylabel('Predicted Values')
+    plt.title('Correlation between Observed and Predicted Values')
+    plt.show()
+
+
+if __name__ == "__main__":
+    main()
     if len(sequence) < 3:
         print("Not enough data to estimate LCG parameters.")
         return
