@@ -4,9 +4,17 @@ import matplotlib.pyplot as plt
 from sklearn.linear_model import LinearRegression
 
 def main():
-    # Example data from the image
-    data = np.array([4.33, 2.98, 3.54, 1.35, 1.21, 2.62, 1.57, 1.49, 2.31, 1.51, 1.23, 1.05, 7.63, 
-                     1.49, 1.38, 2.32, 1.04, 1.49, 1.04, 1.00, 6.97, 2.22, 2.35, 1.30, 1.29, 1.34])
+    # Read data from the text file
+    file_path = 'data/raw/numbers.txt'
+    try:
+        with open(file_path, 'r') as file:
+            data = np.array([float(line.strip()) for line in file])
+    except FileNotFoundError:
+        print(f"File not found: {file_path}")
+        return
+    except ValueError:
+        print("Error reading the data from the file. Ensure the file contains only numeric values.")
+        return
 
     # Creating a pandas DataFrame
     df = pd.DataFrame(data, columns=['Value'])
